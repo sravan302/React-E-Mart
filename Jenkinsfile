@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "Lucky143/emart-react-app"
+        IMAGE_NAME = "lucky143/emart-react-app"
     }
 
     stages {
