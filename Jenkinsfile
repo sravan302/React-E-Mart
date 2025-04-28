@@ -1,33 +1,30 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "lucky143/emart-react-app"
-    }
-
     stages {
-        stage('Clone Repo') {
+        stage('Clone') {
             steps {
-                git 'https://github.com/sravan302/React-E-Mart.git'
+                git branch: 'main', url: 'https://github.com/sravan302/React-E-Mart.git'
             }
         }
-
-        stage('Build React App') {
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
+            }
+        }
+        stage('Build React App') {
+            steps {
                 sh 'npm run build'
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Docker Build') {
             steps {
-                sh "docker build -t $IMAGE_NAME ."
+                sh 'docker build -t emart-react-app .'
             }
         }
-
-        stage('Run Docker Container') {
+        stage('Docker Run') {
             steps {
-                sh "docker run -d -p 3000:80 --name emart-container $IMAGE_NAME"
+                sh 'docker run -d -p 3000:80 emart-react-app'
             }
         }
     }
