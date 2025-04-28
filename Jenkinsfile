@@ -2,29 +2,33 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
+        stage('Checkout SCM') {
             steps {
-                git branch: 'main', url: 'https://github.com/sravan302/React-E-Mart.git'
+                git 'https://github.com/sravan302/React-E-Mart.git'
             }
         }
+        
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
+
         stage('Build React App') {
             steps {
                 sh 'npm run build'
             }
         }
+
         stage('Docker Build') {
             steps {
-                sh 'docker build -t emart-react-app .'
+                sh 'docker build -t react-e-mart-app .'
             }
         }
+
         stage('Docker Run') {
             steps {
-                sh 'docker run -d -p 3000:80 emart-react-app'
+                sh 'docker run -d -p 80:80 --name react-e-mart-container react-e-mart-app'
             }
         }
     }
