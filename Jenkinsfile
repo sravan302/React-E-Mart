@@ -2,33 +2,36 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/sravan302/React-E-Mart.git'
+                git branch: 'main', url: 'https://github.com/sravan302/React-E-Mart.git'
             }
         }
-        
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Build React App') {
+        stage('Build Docker Image') {
             steps {
-                sh 'npm run build'
+                sh 'docker build -t sravan302/react-e-mart:latest .'
             }
         }
 
-        stage('Docker Build') {
+        stage('Deploy to EC2 Ubuntu') {
             steps {
-                sh 'docker build -t react-e-mart-app .'
-            }
-        }
-
-        stage('Docker Run') {
-            steps {
-                sh 'docker run -d -p 80:80 --name react-e-mart-container react-e-mart-app'
+                sshagent(['ec2-ssh-credentials']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@43.204.215.117 << 'EOF'
+                        docker pull sravan302/react-e-mart:latest || true
+                        docker stop react-e-mart || true
+                        docker rm react-e-mart || true
+                        docker run -d --name react-e-mart -p 80:80 sravan302/react-e-mart:latest
+                        EOF
+                    '''
+                }
             }
         }
     }
